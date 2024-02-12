@@ -1190,10 +1190,12 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                     print("BF filter type selected")
                     # if(current_factor<current_limit or wind_bf>bf_limit):
                     #  weather_eval="Bad"
-                    if (current_factor < current_limit):
-                        weather_eval = "CU"
-                    if (wind_bf > bf_limit):
+                    if (wind_bf > bf_limit) and (current_factor < current_limit):
+                        weather_eval = "WI,CU"
+                    elif (wind_bf > bf_limit):
                         weather_eval = "WI"
+                    elif (current_factor < current_limit):
+                        weather_eval = "CU"
 
                 elif (filter_type == "SWH"):
                     print("SWH filter type selected")
@@ -1202,34 +1204,59 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                     print(type(current_factor),type(current_limit))
                     print(type(sig_wave_height), type(sig_wave_height_limit))
                     print(type(wind_bf), type(bf_limit))
-                    if (current_factor < current_limit):
-                        weather_eval = "CU"
-                    if (sig_wave_height > sig_wave_height_limit):
-                        weather_eval = "WA"
-                    if (wind_bf > bf_limit):
+                    if (wind_bf > bf_limit) and (sig_wave_height > sig_wave_height_limit) and (current_factor < current_limit):
+                        weather_eval = "WI,WA,CU"
+                    elif (wind_bf > bf_limit) and (sig_wave_height > sig_wave_height_limit):
+                        weather_eval = "WI,WA"
+                    elif (sig_wave_height > sig_wave_height_limit) and (current_factor < current_limit):
+                        weather_eval = "WA,CU"
+                    elif (wind_bf > bf_limit) and (current_factor < current_limit):
+                        weather_eval = "WI,CU"
+                    elif (wind_bf > bf_limit):
                         weather_eval = "WI"
+                    elif (sig_wave_height > sig_wave_height_limit):
+                        weather_eval = "WA"
+                    elif (current_factor < current_limit):
+                        weather_eval = "CU"
 
                 elif (filter_type == "DSS"):
                     # if(current_factor<current_limit or wind_bf>bf_limit or wind_wave_height>wind_wave_height_limit or swell_height>swell_height_limit):
                     #  weather_eval="Bad"
-                    if (current_factor < current_limit):
-                        weather_eval = "CU"
-                    if (wind_wave_height > wind_wave_height_limit or swell_height > swell_height_limit):
-                        weather_eval = "WA"
-                    if (wind_bf > bf_limit):
+                    if (wind_bf > bf_limit) and (wind_wave_height > wind_wave_height_limit or swell_height > swell_height_limit) and (current_factor < current_limit):
+                        weather_eval = "WI,WA,CU"
+                    elif (wind_bf > bf_limit) and (wind_wave_height > wind_wave_height_limit or swell_height > swell_height_limit):
+                        weather_eval = "WI,WA"
+                    elif (wind_wave_height > wind_wave_height_limit or swell_height > swell_height_limit) and (current_factor < current_limit):
+                        weather_eval = "WA,CU"
+                    elif (wind_bf > bf_limit) and (current_factor < current_limit):
+                        weather_eval = "WI,CU"
+                    elif (wind_bf > bf_limit):
                         weather_eval = "WI"
+                    elif (wind_wave_height > wind_wave_height_limit or swell_height > swell_height_limit):
+                        weather_eval = "WA"
+                    elif (current_factor < current_limit):
+                        weather_eval = "CU"
 
                 elif (filter_type == "SWH+DSS"):
                     # if(current_factor<current_limit or wind_bf>bf_limit or sig_wave_height>sig_wave_height_limit or swell_height>swell_height_limit or wind_wave_height>wind_wave_height_limit):
                     #  weather_eval="Bad"
-                    if (current_factor < current_limit):
-                        weather_eval = "CU"
-                    if (
-                            sig_wave_height > sig_wave_height_limit or swell_height > swell_height_limit or wind_wave_height > wind_wave_height_limit):
-                        weather_eval = "WA"
-                    if (wind_bf > bf_limit):
+                    if (wind_bf > bf_limit) and (sig_wave_height > sig_wave_height_limit or swell_height > swell_height_limit or wind_wave_height > wind_wave_height_limit) and (current_factor < current_limit):
+                        weather_eval = "WI,WA,CU"
+                    elif (wind_bf > bf_limit) and (sig_wave_height > sig_wave_height_limit or swell_height > swell_height_limit or wind_wave_height > wind_wave_height_limit):
+                        weather_eval = "WI,WA"
+                    elif (sig_wave_height > sig_wave_height_limit or swell_height > swell_height_limit or wind_wave_height > wind_wave_height_limit) and (current_factor < current_limit):
+                        weather_eval = "WA,CU"
+                    elif (wind_bf > bf_limit) and (current_factor < current_limit):
+                        weather_eval = "WI,CU"
+                    elif (wind_bf > bf_limit):
                         weather_eval = "WI"
+                    elif (sig_wave_height > sig_wave_height_limit or swell_height > swell_height_limit or wind_wave_height > wind_wave_height_limit):
+                        weather_eval = "WA"
+                    elif (current_factor < current_limit):
+                        weather_eval = "CU"
+
                 # print("Current Factor:"+str(current_factor)+",Eval:"+weather_eval)
+
             elif (current_excluded == "No"):
                 # if(wind_bf>bf_limit or sig_wave_height>sig_wave_height_limit):
                 #  weather_eval="Bad"
@@ -1243,29 +1270,34 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                     # if(wind_bf>bf_limit or sig_wave_height>sig_wave_height_limit):
                     #  weather_eval="Bad"
 
-                    if (sig_wave_height > sig_wave_height_limit):
-                        weather_eval = "WA"
-                    if (wind_bf > bf_limit):
+                    if (wind_bf > bf_limit) and (sig_wave_height > sig_wave_height_limit):
+                        weather_eval = "WI,WA"
+                    elif (wind_bf > bf_limit):
                         weather_eval = "WI"
+                    elif (sig_wave_height > sig_wave_height_limit):
+                        weather_eval = "WA"
 
                 elif (filter_type == "DSS"):
                     # if(wind_bf>bf_limit or wind_wave_height>wind_wave_height_limit or swell_height>swell_height_limit):
                     #  weather_eval="Bad"
 
-                    if (wind_wave_height > wind_wave_height_limit or swell_height > swell_height_limit):
-                        weather_eval = "WA"
-                    if (wind_bf > bf_limit):
+                    if (wind_bf>bf_limit) and (wind_wave_height>wind_wave_height_limit or swell_height>swell_height_limit):
+                        weather_eval = "WI,WA"
+                    elif (wind_bf > bf_limit):
                         weather_eval = "WI"
+                    elif (wind_wave_height>wind_wave_height_limit or swell_height>swell_height_limit):
+                        weather_eval = "WA"
 
                 elif (filter_type == "SWH+DSS"):
                     # if(wind_bf>bf_limit or sig_wave_height>sig_wave_height_limit or swell_height>swell_height_limit or wind_wave_height>wind_wave_height_limit):
                     #  weather_eval="Bad"
 
-                    if (
-                            sig_wave_height > sig_wave_height_limit or swell_height > swell_height_limit or wind_wave_height > wind_wave_height_limit):
-                        weather_eval = "WA"
-                    if (wind_bf > bf_limit):
+                    if (wind_bf>bf_limit) and (sig_wave_height>sig_wave_height_limit or swell_height>swell_height_limit or wind_wave_height>wind_wave_height_limit):
+                        weather_eval = "WI,WA"
+                    elif (wind_bf>bf_limit):
                         weather_eval = "WI"
+                    elif (sig_wave_height>sig_wave_height_limit or swell_height>swell_height_limit or wind_wave_height>wind_wave_height_limit):
+                        weather_eval = "WA"
 
             if (weather_eval != ""):
                 weather_type = "No"
@@ -2521,7 +2553,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
 
             index_range = self.gwx_day[self.gwx_day['Point Type'] == 'Original'].index + 1
             index_range = index_range.insert(0, 0)  # index range to aggregate individual day good weather day status
-
+            gw_period_column = self.gwx_day.iloc[:, -1]
             print('All the individual dataframe below are used to get the aggregate of the particular day weather status')
 
             gwd_agg_arr = []
@@ -2532,7 +2564,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
 
             print("INDEX_RANGE", index_range)
 
-            return gwd_agg_arr
+            return gwd_agg_arr, gw_period_column
 
         def green_table(self,
                         waranted_weather_yes_no,
@@ -3013,7 +3045,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                            'props': [('text-align', 'center'),
                                      ('background-color', 'lightgrey'),
                                      ('color', 'darkblue'),
-                                     ('font-size', '18px'),
+                                     ('font-size', '25px'),
                                      ('border-style', 'solid'),
                                      ('border-width', '1px'),
                                      ('font-weight', 'normal'),
@@ -3024,9 +3056,10 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                            'props': [('text-align', 'center'),
                                      ('border-style', 'solid'),
                                      ('border-width', '1px'),
-                                     ('font-size', '20px'),
+                                     ('font-size', '24px'),
                                      ('border-color', 'black'),
-                                     ('font-family', 'play')]
+                                     ('font-family', 'play'),
+                                     ('font-weight','normal')]
                            },
 
                           {"selector": "tr", "props": "line-height: 30px;"},
@@ -3262,8 +3295,10 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
 
             return weather_details_print_table
 
-        def beautifying_weather_table(self, weather_detail_table):
+        def beautifying_weather_table(self, weather_detail_table, gw_period_column):
             '''1.beautifying the detail weather table  2.build weather summary'''
+
+            weather_detail_table = weather_detail_table.join(gw_period_column)
 
             len_of_table = len(weather_detail_table)
             weather_detail_table.loc[weather_detail_table["Course"].isna(), ["Latitude", "Longitude"]] = ""
@@ -3316,7 +3351,8 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                                ("Report Data by Ship", "Avg. Speed (Kts)"),
                                ("Report Data by Ship", "RPM"),
                                ("Report Data by Ship", "Slip (%)"),
-                               ("Report Data by Ship", "Course")]
+                               ("Report Data by Ship", "Course"),
+                               ("Report Data by Ship","GWP")]
 
                 index2 = pd.MultiIndex.from_tuples(tuple_list2)
 
@@ -3324,7 +3360,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                            'props': [('text-align', 'center'),
                                      ('background-color', '#aaffdc'),
                                      ('color', 'darkblue'),
-                                     ('font-size', '18px'),
+                                     ('font-size', '25px'),
                                      ('border-style', 'solid'),
                                      ('border-width', '1px'),
                                      ('font-weight', 'normal'),
@@ -3335,11 +3371,13 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                            'props': [('text-align', 'center'),
                                      ('border-style', 'solid'),
                                      ('border-width', '1px'),
-                                     ('font-size', '16px'),
-                                     ('border-color', 'black')]
+                                     ('font-size', '24px'),
+                                     ('border-color', 'black'),
+                                     ('font-family','play'),
+                                     ('font-weight','normal')]
                            },
 
-                          {"selector": "tr", "props": "line-height: 24px;"},
+                          {"selector": "tr", "props": "line-height: 30px;"},
                           {"selector": "td,th", "props": "line-height: inherit; padding: 6;"}
 
                           ]  # ('font-family','play'),('font-weight','normal')
@@ -3350,9 +3388,17 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                     else:
                         return [''] * len(x)
 
+                def add_row_color(x):
+                    if (x[-1] == 'YES'):
+                        return ['background-color: #aaffdc'] * len(x)
+                    elif (x[-1] == 'GWD'):
+                        return ['background-color: #aaffdc'] * len(x)
+                    else:
+                        return ['background-color: white'] * len(x)
+
                 df = pd.DataFrame(new_weather_detail_table.values, columns=index2).style. \
-                    format(precision=2, na_rep='-').apply(fonts_bold, axis=1). \
-                    set_table_styles(style1).hide()
+                    format(precision=2, na_rep='-').apply(fonts_bold, axis=1).apply(add_row_color,axis=1). \
+                    set_table_styles(style1).hide_index().hide_columns([("Report Data by Ship","GWP")])
 
                 dfi.export(df, "./png/weather_detail" + str(i) + ".png")
 
@@ -3510,7 +3556,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                        'props': [('text-align', 'center'),
                                  ('background-color', '#aaffdc'),
                                  ('color', 'darkblue'),
-                                 ('font-size', '20px'),
+                                 ('font-size', '25px'),
                                  ('border-style', 'solid'),
                                  ('border-width', '1px'),
                                  ('font-weight', 'normal'),
@@ -3527,8 +3573,8 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                                  ('font-weight', 'normal')]
                        },
 
-                      # {"selector": "tr", "props": "line-height: 24px;"},
-                      {"selector": "tr", "props": "line-height: 24px;"},
+
+                      {"selector": "tr", "props": "line-height: 30px;"},
                       {"selector": "td,th", "props": "line-height: inherit; padding: 6;"}
 
                       ]
@@ -3647,7 +3693,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                        'props': [('text-align', 'center'),
                                  ('background-color', 'lightgrey'),
                                  ('color', 'darkblue'),
-                                 ('font-size', '18px'),
+                                 ('font-size', '25px'),
                                  ('border-style', 'solid'),
                                  ('border-width', '1px'),
                                  ('font-weight', 'normal'),
@@ -3658,8 +3704,10 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                        'props': [('text-align', 'center'),
                                  ('border-style', 'solid'),
                                  ('border-width', '1px'),
-                                 ('font-size', '16px'),
-                                 ('border-color', 'black'), ]
+                                 ('font-size', '24px'),
+                                 ('border-color', 'black'),
+                                 ('font-family','play'),
+                                 ('font-weight','normal')]
                        },
 
                       {"selector": "tr", "props": "line-height: 30px;"},
@@ -3885,8 +3933,8 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
     # phase 2 processing
 
     sla = sealog_abstract(wx, processed_file, cp_ordered_cons_go, bf_limit)
-    gwx_day_summary = sla.gwx_daily_find(
-        weather_report)  # daily good weather day summary to be used in sealog abstract input
+    gwx_day_summary, gw_period_column = sla.gwx_daily_find(weather_report)  # daily good weather day summary to be used in sealog abstract input
+    print("column of good weather period", gw_period_column)
     # print("1111",gwx_day_summary)
     # gwx_day_summary=sla.blue_table(gwx_day_summary)
     green_processed_file = sla.green_table(waranted_weather_yes_no,
@@ -3916,7 +3964,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
     weather_detail_table = sla.weather_detail(weather_report.T, green_processed_file)
     # blank all old values
     # apply new conditions
-    weather_table_beautification = sla.beautifying_weather_table(weather_detail_table)
+    weather_table_beautification = sla.beautifying_weather_table(weather_detail_table, gw_period_column)
 
     weather_summary_table = sla.weather_summary(weather_report.T, green_processed_file)
     weather_table_beautification_summary = sla.beautifying_weather_summary(weather_summary_table, from_port, to_port)
@@ -4049,7 +4097,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
 
             # ----filtering only good weather---
 
-            conds = green_processed_file["GWD_agg"].isin(['YES'])
+            conds = green_processed_file["GWD_agg"].isin(['YES','GWD'])
             green_processed_file_good_weather_only = green_processed_file.loc[conds]
 
             # print("green_processed_file_good_weather_only",green_processed_file_good_weather_only)
