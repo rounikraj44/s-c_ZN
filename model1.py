@@ -52,6 +52,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Image as rImage
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, LongTable, TableStyle, Spacer, PageBreak,ListFlowable, ListItem, Frame, KeepInFrame
+from PyPDF2 import PdfFileReader
 from constants import directory_path
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -1202,9 +1203,9 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                     print("SWH filter type selected")
                     # if(current_factor<current_limit or wind_bf>bf_limit or sig_wave_height>sig_wave_height_limit):
                     #  weather_eval="Bad"
-                    print(type(current_factor),type(current_limit))
-                    print(type(sig_wave_height), type(sig_wave_height_limit))
-                    print(type(wind_bf), type(bf_limit))
+                    # print(type(current_factor),type(current_limit))
+                    # print(type(sig_wave_height), type(sig_wave_height_limit))
+                    # print(type(wind_bf), type(bf_limit))
                     if (wind_bf > bf_limit) and (sig_wave_height > sig_wave_height_limit) and (current_factor < current_limit):
                         weather_eval = "WI,WA,CU"
                     elif (wind_bf > bf_limit) and (sig_wave_height > sig_wave_height_limit):
@@ -1657,7 +1658,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
             except Exception as e:
                 print("First Leg End Lat Long Does Not Match")
                 if (connect_lines):
-                    line_obj = folium.PolyLine(df1[["latitudes", "longitudes"]].values, color='red', weight=5,
+                    line_obj = folium.PolyLine(df1[["latitudes", "longitudes"]].values, color='blue', weight=5,
                                                opacity=0.8).add_to(m)
                 for i in range(0, len(df1)):
                     folium.Marker(
@@ -1668,7 +1669,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                     m = add_arrow_line(df1.latitudes, df1.longitudes, m, line_obj)
         else:
             if (connect_lines):
-                line_obj = folium.PolyLine(df1[["latitudes", "longitudes"]].values, color='red', weight=5,
+                line_obj = folium.PolyLine(df1[["latitudes", "longitudes"]].values, color='blue', weight=5,
                                            opacity=0.8).add_to(m)
 
             for i in range(0, len(df1)):
@@ -1703,8 +1704,8 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
         points_leg1 = []
         for i in np.arange(leg1.index[0], leg1.index[-1] + 1):
             points_leg1.append([leg1['Lat'][i], leg1['lng'][i]])
-            line_obj = folium.PolyLine(points_leg1, color='red', weight=0.5).add_to(m)
-            m = add_arrow_line(leg1['Lat'][i], leg1['lng'][i], m, line_obj, color='red')
+            line_obj = folium.PolyLine(points_leg1, color='blue', weight=0.5).add_to(m)
+            m = add_arrow_line(leg1['Lat'][i], leg1['lng'][i], m, line_obj, color='blue')
 
         points_leg2 = []
         for i in np.arange(leg2.index[0], leg2.index[-1] + 1):
@@ -1716,8 +1717,8 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
 
         for i in np.arange(join.index[0], join.index[-1] + 1):
             points_join.append([join['Lat'][i], join['lng'][i]])
-            line_obj = folium.PolyLine(points_join, color='red', weight=0.5).add_to(m)
-            m = add_arrow_line(join['Lat'][i], join['lng'][i], m, line_obj, color='red')
+            line_obj = folium.PolyLine(points_join, color='blue', weight=0.5).add_to(m)
+            m = add_arrow_line(join['Lat'][i], join['lng'][i], m, line_obj, color='blue')
 
         for i in np.arange(new_df2.index[0], new_df2.index[-1] + 1):
             folium.Marker(
@@ -1749,7 +1750,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
         for i in np.arange(leg.index[0], leg.index[-1] + 1):
             points.append([leg['Lat'][i], leg['lng'][i]])
 
-            line_obj = folium.PolyLine(points, color='red', weight=0.5).add_to(m)
+            line_obj = folium.PolyLine(points, color='blue', weight=0.5).add_to(m)
             m = add_arrow_line(leg['Lat'][i], leg['lng'][i], m, line_obj, color='blue')
 
         for i in np.arange(new_df2.index[0], new_df2.index[-1] + 1):
@@ -1757,7 +1758,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                 location=[new_df2.iloc[i][0], new_df2.iloc[i][1]],
                 icon=folium.DivIcon(html=f"""
                          <div><svg>                    
-                             <circle cx="1" cy="1" r="2" stroke="red" stroke-width="3" fill="red" />
+                             <circle cx="1" cy="1" r="2" stroke="red" stroke-width="3" fill="blue" />
                         </svg></div>""")
             ).add_to(m)
 
@@ -5247,6 +5248,11 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
 
             print("self.current_factor", self.current_factor)
 
+            new_gw_distance = float(round(self.Good_Weather_Distance, 2))
+            new_performed_speed = float(round(self.B132, 2))
+            # display("this is the new data", new_gw_distance, new_performed_speed, type(new_gw_distance), type(new_performed_speed))
+            adjusted_time_in_good_weather = new_gw_distance / new_performed_speed
+
             # if(adverse_curr_excluded=="Excluded" or adverse_curr_excluded=="Yes"):
             if (self.gwx_type == "x"):
                 rawdata = [['', '', '<b>Good Weather</b>', '', ''],
@@ -5254,6 +5260,9 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                            ['', 'Total Distance Sailed', '', str(round(self.Good_Weather_Distance, 2)) + " NM", ''],
                            ['', 'Time at Sea', '', str(round(self.Good_Weather_Time, 2)) + " hrs", ''],
                            ['', 'Average Speed', '', str(round(self.Average_Speed_In_Good_Weather, 2)) + " kts", ''],
+                           ['', 'Current Factor', '', str(round(self.current_factor, 2)) + " kts", ''],
+                           ['', 'Performance Speed', '', str(round(self.B132, 2)) + " kts", ''],
+                           ['', 'Adjusted Time in Good weather', '', str(round(adjusted_time_in_good_weather, 2))+" hrs", ''],
                            ['', 'C/P Min.Allowable Time', '', str(self.Min_Total_Allowed_Time_in_GW.round(2)) + " hrs", ''],
                            ['', 'C/P Max.Allowable Time', '', str(self.Max_Total_Allowed_Time_in_GW.round(2)) + " hrs", ''],
                            ['', 'Track Time ' + track_time_action, '', str(track_time_val.round(2)) + " hrs", ''],
@@ -5267,8 +5276,9 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                            ['', 'Total Distance Sailed', '', str(round(self.Good_Weather_Distance, 2)) + " NM", ''],
                            ['', 'Time at Sea', '', str(round(self.Good_Weather_Time, 2)) + " hrs", ''],
                            ['', 'Average Speed', '', str(round(self.Average_Speed_In_Good_Weather, 2)) + " kts", ''],
-                           ['', 'Current Factor', '', str(round(self.current_factor, 2)) + " kts", ''],
+                           ['', 'Current Factor', '', 'N/A', ''],
                            ['', 'Performance Speed', '', str(round(self.B132, 2)) + " kts", ''],
+                           ['', 'Adjusted Time in Good weather','', str(round(adjusted_time_in_good_weather, 2))+" hrs",''],
                            ['', 'C/P Min.Allowable Time', '', str(self.Min_Total_Allowed_Time_in_GW.round(2)) + " hrs", ''],
                            ['', 'C/P Max.Allowable Time', '', str(self.Max_Total_Allowed_Time_in_GW.round(2)) + " hrs", ''],
                            ['', 'Track Time ' + track_time_action, '', str(track_time_val.round(2)) + " hrs", ''],
@@ -5991,6 +6001,1459 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
             print("test6")
             doc.build(story, onLaterPages=addPageNumber)
 
+        def counting_pages(self):
+            def count_pdf_pages(pdf_path):
+                with open(pdf_path, 'rb') as file:
+                    pdf_reader = PdfFileReader(file)
+                    num_pages = pdf_reader.numPages
+                return num_pages
+
+            pdf_path = f"./assets/" + self.folder_name + ".pdf"
+            total_pages = count_pdf_pages(pdf_path)
+            global total_no_of_pages
+            total_no_of_pages = total_pages
+            print("Total pages:", total_no_of_pages)
+
+            return total_no_of_pages
+
+        def generate_pdf_x(self, from_port, to_port, bad_weather_period_definition_as_per_CP_in_hrs,
+                         report_type,
+                         # current_excluded,
+                         prepared_basis,
+                         waranted_weather_yes_no,
+                         extrapolation_Allowed,
+                         current_tolerance,
+                         tolerance,
+                         mistolerance,
+                         About_Cons_MaxTolerence,
+                         bf_limit_dss
+                         ):
+
+            fbold = font_manager.FontProperties(fname="./font/Play-Bold.ttf")
+            freg = font_manager.FontProperties(fname="./font/Play-Regular.ttf")
+            styles = getSampleStyleSheet()
+            play_font = r"./font/Play-Regular.ttf"
+            playbold_font = r"./font/Play-Bold.ttf"
+            pdfmetrics.registerFont(TTFont("Play-Regular", play_font))
+            pdfmetrics.registerFont(TTFont("Play-Bold", playbold_font))
+
+            # colour background
+            colour = {'title': {'text': '#000000'},
+                      'subtitle': {'text': '#000000'},
+                      'sectionheader': {'text': '#000000', 'line': '#969696'},
+                      'tablecontents': {'rowlabeltext': '#000000', 'datatext': '#000000', 'columntext': '#000000',
+                                        'line': '#969696'},
+                      'status': {'alarm': {'text': '#231f20', 'back': '#faccd1', 'symbol': '#FF0000'},
+                                 'warn': {'text': '#231f20', 'back': '#fff2bd', 'symbol': '#eed202'},
+                                 'normal': {'text': '#231f20', 'back': '#cbe2a7', 'symbol': '#00FF00'},
+                                 'null': {'text': '#D3D3D3', 'symbol': '#D3D3D3'}}}
+            size = {'title': {'text': 12},
+                    'subtitle': {'text': 12},
+                    'sectionheader': {'text': 14, 'line': 2 / 200 * inch},
+                    'tablecontents': {'rowlabeltext': 10, 'datatext': 10, 'columntext': 10, 'line': 0.5 / 200 * inch},
+                    'status': {'alarm': {'text': 10},
+                               'warn': {'text': 10},
+                               'normal': {'text': 10},
+                               'null': {'text': 10}}}
+            font = {'title': {'text': 'Bold'},
+                    'subtitle': {'text': 'Regular'},
+                    'sectionheader': {'text': 'Bold'},
+                    'tablecontents': {'rowlabeltext': 'Bold', 'datatext': 'Regular', 'columntext': 'Bold'},
+                    'status': {'alarm': {'text': 'Regular'},
+                               'warn': {'text': 'Regular'},
+                               'normal': {'text': 'Regular'},
+                               'null': {'text': 'Regular'}}}
+            margin = 0.4 * inch
+            width, height = A4
+            # ('SPAN',(0,0),(-1,0)),
+
+            space = Spacer(width - margin * 2, 0.2 * inch)
+            space2 = Spacer(width - margin * 2, 0.1 * inch)
+            space3 = Spacer(width - margin * 2, 0.8 * inch)
+
+            sectionHeaderStyle3 = [
+                ('BOTTOMPADDING', (0, 8), (-1, -1), 40),
+                ('TOPPADDING', (0, 0), (-1, -8), 20),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('BACKGROUND', (0, 0), (-1, -1),
+                 '#a8d7c5')]  # colors.mediumturquoise)] ## middle alighment # First row combined # first row background colour light grey
+            #     ('LINEBELOW', (0, 0), (-1, -1), size['sectionheader']['line'], colors.HexColor(colour['sectionheader']['line']))]
+            sectionHeaderStyle = [
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('TOPPADDING', (0, 0), (-1, -1), 2),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')]
+            ### for single columns
+            sectionHeaderStyle2 = [
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('TOPPADDING', (0, 0), (-1, -1), 2),
+                ('VALIGN', (0, 0), (0, -1), 'MIDDLE'),  ## middle alighment, # first row background colour light grey
+                ('LINEBELOW', (0, 0), (0, 0), size['sectionheader']['line'],
+                 colors.HexColor(colour['sectionheader']['line']))]
+
+            sectionHeaderStyle4 = [
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('TOPPADDING', (0, 0), (-1, -1), 2),
+                ('VALIGN', (0, 0), (0, -1), 'MIDDLE'),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                ('BACKGROUND', (0, 0), (-1, 0), '#a8d7c5'),
+                ('BACKGROUND', (2, 1), (-1, -1), '#4fb28b'),  ## middle alighment, # first row background colour light grey
+                ('LINEBELOW', (0, 0), (0, 0), size['sectionheader']['line'],
+                 colors.HexColor(colour['sectionheader']['line']))]
+
+            sectionHeaderStyle5 = [
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('TOPPADDING', (0, 0), (-1, -1), 2),
+                ('VALIGN', (0, 0), (0, -1), 'MIDDLE'),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                ('BACKGROUND', (0, 0), (-1, 0), '#a8d7c5'),  ## middle alighment, # first row background colour light grey
+                ('LINEBELOW', (0, 0), (0, 0), size['sectionheader']['line'],
+                 colors.HexColor(colour['sectionheader']['line']))]
+
+            doc = SimpleDocTemplate(f"./assets/" + self.folder_name + ".pdf", leftMargin=margin, rightMargin=margin,
+                                    topMargin=margin, bottomMargin=margin)
+            orden = ParagraphStyle('orden')
+            orden.leading = 16
+            story = []
+
+            if self.voyage_phase == "MID":
+                I_zn = rImage("./static/MID-ZN.jpg")
+            elif self.voyage_phase == "END":
+                I_zn = rImage("./static/END-ZN.jpg")
+            else:
+                I_zn = rImage("./static/ZN.jpg")
+            I_zn.drawHeight = 8.1 * inch * I_zn.drawHeight / I_zn.drawWidth
+            I_zn.drawWidth = 8.3 * inch * 0.9
+            story.append(I_zn)
+
+            rawdata = [['', '', self.ship_name, '', ''],
+                       ['', '', '', '', ''],
+                       ['', '', '<b>Prepared Basis : ' + self.prepared_basis + '</b>', '', ''],
+                       ['', '', from_port + ' to ' + to_port, '', ''],
+                       ['', '', 'Dep.Date:' + " " + str(self.Dep_Date) + " " + str(self.departure_time_str) + ' UTC', '',
+                        ''],
+                       ['', '', 'Arrival.Date:' + " " + str(self.Arrival_Date) + " " + str(self.arrival_time_str) + ' UTC',
+                        '', ''],
+                       ['', '', 'Condition : ' + str(self.condition), '', ''],
+                       ['', '', '<b>Report Date</b> : ' + str(self.report_date), '', ''],
+                       ['', '', '<b>Reference No.</b> : ' + '', '', '']]
+
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-Bold" size="16" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx == 2):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-Bold" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 7) and (colidx == 2):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-Bold" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 3):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+
+            sectionHeaderStyle3 = [
+                ('BOTTOMPADDING', (0, 8), (-1, -1), 40),
+                ('TOPPADDING', (0, 0), (-1, -8), 20),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('BACKGROUND', (0, 0), (-1, -1), '#a8d7c5')]
+            t3Style1 = sectionHeaderStyle3
+            t = Table(data, self.colwidths, style=TableStyle(t3Style1))
+            # print('printing',t)
+            story.append(t)
+            story.append(PageBreak())
+
+            print("self.constan_speed", self.constant_speed)
+
+
+            if (self.prepared_basis == "CP Speed") & (self.waranted_weather_yes_no == "YES"):
+                if (self.cp_ae_cons is not None and self.cp_ae_cons > 0):
+                    cp_string = '<b>CP Warranties : </b>' + 'About ' + str(self.cp_speed) + ' Kts on ' + 'About ' + str(
+                        self.cp_cons) + ' Mts FO + ' + str(self.cp_ae_cons) + ' Mt GO'
+                else:
+                    cp_string = '<b>CP Warranties : </b>' + 'About ' + str(self.cp_speed) + ' Kts on ' + 'About ' + str(
+                        self.cp_cons) + ' Mts Fuel'
+
+            elif (self.prepared_basis == "CP Speed") & (self.waranted_weather_yes_no == "NO"):
+                if (self.cp_ae_cons is not None and self.cp_ae_cons > 0):
+                    cp_string = '<b>CP Warranties : </b>' + '' + str(self.cp_speed) + ' Kts on ' + '' + str(
+                        self.cp_cons) + ' Mts FO + ' + str(self.cp_ae_cons) + ' Mt GO'
+                else:
+                    cp_string = '<b>CP Warranties : </b>' + '' + str(self.cp_speed) + ' Kts on ' + '' + str(
+                        self.cp_cons) + ' Mts Fuel'
+
+            else:
+                cp_string = '<b>CP Warranties : </b>' + 'Optimal Speed & Consumption'
+
+            rawdata = [['', '<b>VOYAGE MAP</b>', ''],
+                       ['', '', ''],
+                       ['', '<b>Itinerary : </b>' + from_port + ' - ' + to_port, ''],
+                       # ['','','<b>Voyage Leg Date(UTC) : </b>'+ str(self.departure_time_str) +' - '+ str(self.arrival_time_str),'',''],
+                       ['', '<b>Voyage Leg Date(UTC) : </b>' + str(self.Dep_Date) + " " + str(
+                           self.departure_time_str) + ' - ' + str(self.Arrival_Date) + " " + str(self.arrival_time_str),
+                        ''],
+                       ['', cp_string, '']]
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):  ## section header
+                        # print(col)
+                        f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader'][
+                            'text']
+                        newdata = f'<para align=center><font name="Play-Bold" size="16" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 2):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+            t3Style1 = sectionHeaderStyle
+            t = Table(data, self.colwidths5, style=TableStyle(t3Style1))
+            story.append(t)
+
+            print("folder name", self.folder_name)
+            # I_map = rImage('../content/drive/My Drive/Colab Notebooks/images/'+self.folder_name+'.png')
+            story.append(space2)
+            #I_map = rImage('./images/' + self.folder_name + '.png')
+            I_map = rImage(directory_path + self.folder_name + '.png')
+            # I_map.drawHeight = 11*inch*I_map.drawHeight / I_map.drawWidth
+            # I_map.drawWidth = 8*inch*0.8
+
+            image_width, image_height = I_map.drawWidth, I_map.drawHeight
+            image_aspect = image_height / float(image_width)
+            print("Map Image Width:" + str(image_width))
+            print("Map Image Height:" + str(image_height))
+
+            # Determine the dimensions of the image in the overview
+            print_width = A4[0] * 0.89
+            print_height = print_width * image_aspect
+            if (print_height > 500):
+                print_height = 500
+            I_map.drawWidth = print_width
+            I_map.drawHeight = print_height
+            story.append(I_map)
+            story.append(PageBreak())
+
+            # Report analysis summary start page 1
+            story.append(space3)
+            rawdata = [['', '<b>Report Analysis Summary</b>', ''],
+                       ['', '<b>Itinerary : </b>' + from_port + ' - ' + to_port, ''],
+                       ['', '<b>Voyage Leg Date(UTC) : </b>' + str(self.Dep_Date) + " " + str(
+                           self.departure_time_str) + ' - ' + str(self.Arrival_Date) + " " + str(self.arrival_time_str),
+                        '']]
+
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):  ## section header
+                        # print(col)
+                        f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader'][
+                            'text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 1):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                        #         elif (rowidx >= 2):
+                    #             f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                    #             newdata = f'<para align=left><font name="Play-{f}" size="{s}" color="{c}">'+ str(col) + '</font></para>'
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+            t3Style1 = sectionHeaderStyle
+            t = Table(data, self.colwidths5, style=TableStyle(t3Style1))
+            story.append(t)
+            story.append(space2)
+            story.append(space2)
+
+            print("time_gain_loss1", self.total_time_loss, self.total_time_gain)
+
+            if (self.total_time_loss == 0 and self.total_time_gain == 0):
+                time_str = "Nil"
+
+            elif math.isnan(self.total_time_loss) & math.isnan(self.total_time_gain):
+                time_str = "Nil"
+
+            elif (self.total_time_loss == 0):
+                time_str = str(self.total_time_gain.round(2)) + " hours(Gain)"
+            else:
+                time_str = str(self.total_time_loss.round(2)) + " hours(Loss)"
+
+            print("time_str", time_str)
+
+            print("fuel_gain_loss1", self.total_fuel_loss, self.total_fuel_gain)
+
+            if (self.total_fuel_loss == "" and self.total_fuel_gain == ""):
+                fuel_string = "Nil"
+
+            elif math.isnan(self.total_fuel_loss) & math.isnan(self.total_fuel_gain):
+                fuel_string = "Nil"
+
+            elif (self.total_fuel_gain != 0) & (self.total_fuel_loss == 0):
+                fuel_string = str(self.total_fuel_gain.round(2)) + " mt(Gain)"
+
+
+            elif (self.total_fuel_loss == 0):  # &(self.total_fuel_gain==0):
+                fuel_string = "Nil"
+
+            else:
+                fuel_string = str(self.total_fuel_loss.round(2)) + " mt(Loss)"
+
+            print("fuel_string", fuel_string)
+
+            if (self.fuel_type_used == "HSFO"):
+                v_u_l_sfo = "Nil"
+                hsfo_val = fuel_string
+                mgo_val = "Nil"
+                mdo_val = "NA"
+            else:
+                v_u_l_sfo = fuel_string
+                hsfo_val = "Nil"
+                mgo_val = "Nil"
+                mdo_val = "NA"
+
+            #         rawdata = [['ATD(Z)','Speed Analysis','V/U/L SFO Analysis','HSFO Analysis','MGO Analysis','MDO Analysis'],
+            #                     [from_port+' - '+to_port+" \n"+str(self.Dep_Date)+" "+str(self.departure_time_str),time_str,v_u_l_sfo,hsfo_val,mgo_val,mdo_val]]
+
+            rawdata = [
+                ['ATD(Z)', 'Time gain/loss', 'V/U/L SFO gain/loss', 'HSFO gain/loss', 'MGO gain/loss', 'MDO gain/loss'],
+                [from_port + ' - ' + to_port + " \n" + str(self.Dep_Date) + " " + str(self.departure_time_str), time_str,
+                 v_u_l_sfo, hsfo_val, mgo_val, mdo_val]]
+
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):  ## section header
+                        # print(col)
+                        f, s, c = font['tablecontents']['datatext'], size['tablecontents']['datatext'], \
+                        colour['tablecontents']['datatext']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 1):
+                        f, s, c = font['tablecontents']['datatext'], size['tablecontents']['datatext'], \
+                        colour['tablecontents']['datatext']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                        #         elif (rowidx >= 2):
+                    #             f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                    #             newdata = f'<para align=left><font name="Play-{f}" size="{s}" color="{c}">'+ str(col) + '</font></para>'
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+            t3Style1 = [
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('TOPPADDING', (0, 0), (-1, -1), 2),
+                ('VALIGN', (0, 0), (0, -1), 'MIDDLE'),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                ('BACKGROUND', (0, 0), (-1, 0), '#a8d7c5'),
+                ('BACKGROUND', (2, 1), (-1, -1), '#4fb28b'),  ## middle alighment, # first row background colour light grey
+                ('LINEBELOW', (0, 0), (0, 0), size['sectionheader']['line'],
+                 colors.HexColor(colour['sectionheader']['line']))]
+
+            # t3Style1 = sectionHeaderStyle4
+            if (self.total_time_loss == ""):
+                t3Style1.add('TEXTCOLOR', (1, 1), (1, 1), '#c3677d')
+            elif self.total_time_loss < 0:
+                t3Style1.add('TEXTCOLOR', (1, 1), (1, 1), '#c3677d')
+
+            for row, values in enumerate(rawdata):
+                print("raw-data")
+                print(rawdata)
+                for column, value in enumerate(values):
+                    print("column, value")
+                    print(column, value)
+                    if ("Loss" in value):
+                        t3Style1.append(('BACKGROUND', (column, row), (column, row), "#F59C9D"))
+                    elif ("Gain" in value):
+                        t3Style1.append(('BACKGROUND', (column, row), (column, row), "#5EBA7D"))
+                    elif ("Nil" in value or "NA" in value):
+                        t3Style1.append(('BACKGROUND', (column, row), (column, row), "#ffffff"))
+            print("--------------------------------")
+            print(t3Style1)
+            print("--------------------------------")
+
+            t = Table(data, self.colwidths4, style=TableStyle(t3Style1))
+            story.append(t)
+            story.append(space2)
+            story.append(space2)
+
+            f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader']['text']
+            story.append(Paragraph(f'<font name="Play-{f}" size="12" color="{c}"> Voyage Details</font>'))
+            story.append(space2)
+            story.append(space2)
+
+            #I_vd = rImage("./png/report_analysis_summary_voyage_details.png")
+            I_vd = rImage(directory_path + "report_analysis_summary_voyage_details.png")
+            image_width, image_height = I_vd.drawWidth, I_vd.drawHeight
+            image_aspect = image_height / float(image_width)
+            print_width = A4[0] * 0.89
+            print_height = print_width * image_aspect
+            I_vd.drawWidth = print_width
+            I_vd.drawHeight = print_height
+            story.append(I_vd)
+            story.append(space2)
+            story.append(Paragraph(f'<font name="Play-{f}" size="12" color="{c}">  Warranted Consumption</font>'))
+            story.append(space2)
+            story.append(space2)
+
+            if (self.constant_speed):
+                cp_speed_string = str(self.cp_speed) + " kts"
+                if (self.cp_ae_cons is not None and self.cp_ae_cons > 0):
+                    cp_cons_string = str(self.cp_cons) + ' Mts FO + ' + str(self.cp_ae_cons) + ' Mt GO'
+                else:
+                    cp_cons_string = str(self.cp_cons) + ' MT'
+            else:
+                cp_speed_string = ' Optimal Speed'
+                cp_cons_string = ' Optimal Consumption'
+
+            if self.waranted_weather_yes_no == 'YES':
+                rawdata = [['Leg Details', 'CP Speed', 'Total Cons.'],
+                           [from_port + ' to ' + to_port + " ", f"About {cp_speed_string}", f"About {cp_cons_string}"]]
+            else:
+
+                rawdata = [['Leg Details', 'CP Speed', 'Total Cons.'],
+                           [from_port + ' to ' + to_port, cp_speed_string, cp_cons_string]]
+
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):  ## section header
+                        # print(col)
+                        f, s, c = font['tablecontents']['datatext'], size['tablecontents']['datatext'], \
+                        colour['tablecontents']['datatext']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 1):
+                        f, s, c = font['tablecontents']['datatext'], size['tablecontents']['datatext'], \
+                        colour['tablecontents']['datatext']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                        #         elif (rowidx >= 2):
+                    #             f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                    #             newdata = f'<para align=left><font name="Play-{f}" size="{s}" color="{c}">'+ str(col) + '</font></para>'
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+            t3Style1 = sectionHeaderStyle5
+            t = Table(data, self.colwidths3, style=TableStyle(t3Style1))
+            story.append(t)
+            story.append(PageBreak())
+
+            story.append(space3)
+            story.append(Paragraph(
+                f'<para align=center><font name="Play-Bold" size="14" color="{c}"><b> Report Analysis Summary</b></font></para>'))
+
+            story.append(space2)
+            story.append(space2)
+            story.append(space2)
+            story.append(space2)
+
+            # ------
+
+            line3 = ""
+            if (bad_weather_period_definition_as_per_CP_in_hrs < 24):
+                line3 = "A noon report is counted as fair weather if majority of the noon period is good weather basis analyzed weather"
+            else:
+                line3 = "A noon report is counted as fair weather if 24 hours of continuous good weather is observed in analyzed weather"
+            filter_type_str = ""
+            if (report_type == "DSS"):
+                filter_type_str = ", DSS =" + str(bf_limit_dss) + ""
+            elif (report_type == "SWH" or report_type == "SWH+DSS"):
+                filter_type_str = ", Significant Wave Height <= " + str(swh_limit) + " m"
+            elif (report_type == "BF"):
+                filter_type_str = ""
+            line5 = ""
+            if (self.adverse_current == "excluded"):
+                line5 = "\t• Adverse Currents are excluded"
+            else:
+                line5 = "\t• Adverse Currents are not excluded"
+            line9 = ""
+            if (prepared_basis == "CP Speed"):
+                line9 = "All comparisons are done against CP Speed"
+            else:
+                line9 = "All comparisons are done against Daily CP Speed"
+                line10 = ""
+            line11 = ""
+            line12 = "***Note: The calculations for the report are done on the performed speed by adjusting the effect of currents (If applicable)."
+            if (extrapolation_Allowed == "YES"):
+                line11 = "Good weather performance is extrapolated to overall voyage"
+            else:
+                line11 = "Good weather performance is not extrapolated to overall voyage"
+
+            if (waranted_weather_yes_no == "YES"):
+                # line10 = "“About” Tolerance:\n"+"\t•  For speed : -"+str(about_speed_min_tolerance)+" Kts to +"+str(about_speed_max_tolerance)+" Kts\n"+"\t•  For consumption : -"+str(about_cons_min_tolerance)+" % to +"+str(about_cons_max_tolerance)+" %\n\n"
+                line100 = "“About” Tolerance:"
+
+                if tolerance == 0:
+                    line101 = "    •  For speed : -" + str(current_tolerance) + " Kts"
+                elif current_tolerance == 0:
+                    line101 = "    •  For speed : -" + str(tolerance) + " Kts"
+                else:
+                    line101 = "    •  For speed : -" + str(current_tolerance) + " / +" + str(tolerance) + " Kts"
+
+                if mistolerance == 0:
+                    line102 = "    •  For consumption : -" + str(About_Cons_MaxTolerence) + " %"
+                elif About_Cons_MaxTolerence == 0:
+                    line102 = "    •  For consumption : -" + str(mistolerance) + " %"
+                else:
+                    line102 = "    •  For consumption : -" + str(mistolerance) + " / +" + str(
+                        About_Cons_MaxTolerence) + " %"
+
+                # line103 = ""
+                cp_summary = ["Interpretation of good weather criteria as per CP:", "Weather Definition:", line3,
+                              "\t•  Wind Force <= " + str(bf_limit) + " Bf" + filter_type_str, line5,
+                              "Noon Report excluded from evaluation :", "Weather Source : Analyzed",
+                              "Speed used for Analysis : Performed speed", line9, "", line100, line101, line102, line11,
+                              line12]
+
+            if (waranted_weather_yes_no == "NO"):
+                cp_summary = ["Interpretation of good weather criteria as per CP:", "Weather Definition:", line3,
+                              "\t•  Wind Force <= " + str(bf_limit) + " Bf" + filter_type_str, line5,
+                              "Noon Report excluded from evaluation :", "Weather Source : Analyzed",
+                              "Speed used for Analysis : Performed speed", line9, line11, line12]
+
+            # ------
+
+            bold_texts = ["Weather Definition:", "Noon Report excluded from evaluation :", "“About” Tolerance:",
+                          "About Tolerance:"]
+            for i in range(0, 20):
+                try:
+                    text_to_be_pasted = cp_summary[i]  # cp_worksheet.cell_value(i,0)
+                    # print("-"+text_to_be_pasted+"-")
+                    if (text_to_be_pasted.strip() in bold_texts):
+                        story.append(Paragraph(
+                            f'<font name="Play-Bold" size="12" color="{c}"><b>' + text_to_be_pasted + '</b></font>'))
+                        story.append(space2)
+                    elif (text_to_be_pasted.strip() == ""):
+                        story.append(space2)
+                    else:
+                        story.append(
+                            Paragraph(f'<font name="Play-{f}" size="12" color="{c}">' + text_to_be_pasted + '</font>'))
+                        story.append(space2)
+                    # cp_text_list.append(worksheet.cell_value(i,0))
+                except Exception as e:
+                    print(e)
+                    print()
+            story.append(PageBreak())
+
+            # Report analysis summary end page 2
+
+            # ----------------
+            # Page3
+            # page fuel consumption summary
+            #         if(self.constant_speed):
+            #             if (self.cp_ae_cons is not None and self.cp_ae_cons>0):
+            #                 cp_string = '<b>CP Warranties : </b>'+ 'About '+'str(cp_speed)'+' Kts on '+'About '+'str(cp_cons)'+' Mts FO + '+'str(cp_ae_cons)'+' Mt GO'
+            #             else:
+            #                 cp_string = '<b>CP Warranties : </b>'+ 'About '+'str(cp_speed)'+' Kts on '+'About '+'str(cp_cons)'+' Mts Fuel'
+            #         else:
+            #                 cp_string = '<b>CP Warranties : </b>'+ 'Optimal Speed & Consumption'
+            story.append(space3)
+            #speed_logo = '<img src="C:Users/DELL/PycharmProjects/performance_form/static/Speedometer(1).jpg" valign="middle" width = "25" height="25"/>'
+            rawdata = [['',  '<b>Speed Summary</b>', ''],
+                       ['', '', ''],
+                       ['', '<b>Itinerary : </b>' + from_port + ' - ' + to_port, ''],
+                       ['', '<b>Voyage Leg Date(UTC) : </b>' + str(self.Dep_Date) + " " + str(
+                           self.departure_time_str) + ' - ' + str(self.Arrival_Date) + " " + str(self.arrival_time_str),
+                        ''],
+                       ['', cp_string, '']]
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):  ## section header
+                        # print(col)
+                        f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader'][
+                            'text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 2):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                        #         elif (rowidx >= 2):
+                    #             f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                    #             newdata = f'<para align=left><font name="Play-{f}" size="{s}" color="{c}">'+ str(col) + '</font></para>'
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+            t3Style1 = sectionHeaderStyle
+            t = Table(data, self.colwidths5, style=TableStyle(t3Style1))
+            story.append(t)
+            story.append(space3)
+            story.append(space2)
+            rawdata = [['', '', '<b>Overall</b>', '', ''],
+                       ['', '', '', '', ''],
+                       ['', 'Total Distance Sailed', '', str(round(self.total_distance, 2)) + " NM", ''],
+                       ['', 'Time at Sea', '', str(round(self.total_time, 2)) + " hrs", ''],
+                       ['', 'Average Speed', '', str(round(self.average_speed, 2)) + " kts", '']]
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):  ## section header
+                        # print(col)
+                        f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader'][
+                            'text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 2):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{11}" color="{c}">' + str(
+                            col) + '</font></para>'
+                        #         elif (rowidx >= 2):
+                    #             f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                    #             newdata = f'<para align=left><font name="Play-{f}" size="{s}" color="{c}">'+ str(col) + '</font></para>'
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+            t3Style1 = sectionHeaderStyle
+            t = Table(data, self.colwidths2, style=TableStyle(t3Style1))
+            story.append(t)
+
+            story.append(space3)
+
+            print("page_3", self.track_time_loss, self.track_time_gain, self.total_time_loss)
+
+            track_time_action = ""
+            if (self.track_time_loss == 0):
+                track_time_action = "Gain"
+                track_time_val = self.track_time_gain
+            else:
+                track_time_action = "Loss"
+                track_time_val = self.track_time_loss
+
+            total_time_action = ""
+            if (self.total_time_loss == 0):
+                total_time_action = "Gain"
+                total_time_val = self.total_time_gain
+                print("A")
+
+            elif math.isnan(self.total_time_loss):
+                total_time_action = "Gain"
+                total_time_val = np.array(0)
+                print("B")
+
+            else:
+                total_time_action = "Loss"
+                total_time_val = self.total_time_loss
+                print("C")
+
+            print("self.current_factor", self.current_factor)
+
+            new_gw_distance = float(round(self.Good_Weather_Distance, 2))
+            new_performed_speed = float(round(self.B132, 2))
+            # display("this is the new data", new_gw_distance, new_performed_speed, type(new_gw_distance), type(new_performed_speed))
+            adjusted_time_in_good_weather = new_gw_distance / new_performed_speed
+
+            # if(adverse_curr_excluded=="Excluded" or adverse_curr_excluded=="Yes"):
+            if (self.gwx_type == "x"):
+                rawdata = [['', '', '<b>Good Weather</b>', '', ''],
+                           ['', '', '', '', ''],
+                           ['', 'Total Distance Sailed', '', str(round(self.Good_Weather_Distance, 2)) + " NM", ''],
+                           ['', 'Time at Sea', '', str(round(self.Good_Weather_Time, 2)) + " hrs", ''],
+                           ['', 'Average Speed', '', str(round(self.Average_Speed_In_Good_Weather, 2)) + " kts", ''],
+                           ['', 'Current Factor', '', str(round(self.current_factor, 2)) + " kts", ''],
+                           ['', 'Performance Speed', '', str(round(self.B132, 2)) + " kts", ''],
+                           ['', 'Adjusted Time in Good weather', '', str(round(adjusted_time_in_good_weather, 2))+" hrs", ''],
+                           ['', 'C/P Min.Allowable Time', '', str(self.Min_Total_Allowed_Time_in_GW.round(2)) + " hrs", ''],
+                           ['', 'C/P Max.Allowable Time', '', str(self.Max_Total_Allowed_Time_in_GW.round(2)) + " hrs", ''],
+                           ['', 'Track Time ' + track_time_action, '', str(track_time_val.round(2)) + " hrs", ''],
+                           ['', 'Applied to Overall Track Time ' + total_time_action, '',
+                            str(total_time_val.round(2)) + " hrs", '']]
+            # else:
+            # elif(adverse_curr_excluded=="Not Excluded" or adverse_curr_excluded=="No"):
+            else:
+                rawdata = [['', '', '<b>Good Weather</b>', '', ''],
+                           ['', '', '', '', ''],
+                           ['', 'Total Distance Sailed', '', str(round(self.Good_Weather_Distance, 2)) + " NM", ''],
+                           ['', 'Time at Sea', '', str(round(self.Good_Weather_Time, 2)) + " hrs", ''],
+                           ['', 'Average Speed', '', str(round(self.Average_Speed_In_Good_Weather, 2)) + " kts", ''],
+                           ['', 'Current Factor', '', 'N/A', ''],
+                           ['', 'Performance Speed', '', str(round(self.B132, 2)) + " kts", ''],
+                           ['', 'Adjusted Time in Good weather','', str(round(adjusted_time_in_good_weather, 2))+" hrs",''],
+                           ['', 'C/P Min.Allowable Time', '', str(self.Min_Total_Allowed_Time_in_GW.round(2)) + " hrs", ''],
+                           ['', 'C/P Max.Allowable Time', '', str(self.Max_Total_Allowed_Time_in_GW.round(2)) + " hrs", ''],
+                           ['', 'Track Time ' + track_time_action, '', str(track_time_val.round(2)) + " hrs", ''],
+                           ['', 'Applied to Overall Track Time ' + total_time_action, '',
+                            str(total_time_val.round(2)) + " hrs", '']]
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):  ## section header
+                        # print(col)
+                        f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader'][
+                            'text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 2):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{11}" color="{c}">' + str(
+                            col) + '</font></para>'
+                        #         elif (rowidx >= 2):
+                    #             f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                    #             newdata = f'<para align=left><font name="Play-{f}" size="{s}" color="{c}">'+ str(col) + '</font></para>'
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+            t3Style1 = sectionHeaderStyle
+            t = Table(data, self.colwidths2, style=TableStyle(t3Style1))
+            story.append(t)
+
+            story.append(space2)
+            story.append(PageBreak())
+
+            # ----Fuel page
+
+            story.append(space3)
+            #fuel_logo = '<img src="./static/fuellogo(1).jpg" valign="middle" width = "25" height="25"/>'
+            rawdata = [['', '<b>Fuel Consumption Summary</b>', ''],
+                       ['', '', ''],
+                       ['', '<b>Itinerary : </b>' + from_port + ' - ' + to_port, ''],
+                       ['', '<b>Voyage Leg Date(UTC) : </b>' + str(self.Dep_Date) + " " + str(
+                           self.departure_time_str) + ' - ' + str(self.Arrival_Date) + " " + str(self.arrival_time_str),
+                        ''],
+                       ['', cp_string, '']]
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):  ## section header
+                        # print(col)
+                        f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader'][
+                            'text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 2):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                        #         elif (rowidx >= 2):
+                    #             f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                    #             newdata = f'<para align=left><font name="Play-{f}" size="{s}" color="{c}">'+ str(col) + '</font></para>'
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+            t3Style1 = sectionHeaderStyle
+            t = Table(data, self.colwidths5, style=TableStyle(t3Style1))
+            story.append(t)
+            story.append(space3)
+
+            # Test start
+
+            #         if math.isnan(self.Total_Average_Daily_Consumption):
+            #             self.Total_Average_Daily_Consumption=0.00
+
+            # Test End
+
+            rawdata = [['', '', '<b>Overall</b>', '', ''],
+                       ['', '', '', '', ''],
+                       ['', 'Average Daily Consumption', '', str(round(self.Total_Average_Daily_Consumption, 2)) + " mts",
+                        ''],
+                       ['', 'Total Bunkers Consumed at Sea', '', str(round(self.Total_bunkers_Consumed_at_sea, 2)) + " mts",
+                        ''],
+                       ['', 'Gradewise Distribution of Bunkers consumed at sea', '', '', ''],
+                       ['', 'HSFO', '', str(round(self.hdfo_total_con, 2)) + " mts", ''],
+                       ['', 'IFO', '', str(round(self.ifo_total_con, 2)) + " mts", ''],
+                       ['', 'GO', '', str(round(self.Total_Bunker_GO_Consumption, 2)) + " mts", '']]
+
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):  ## section header
+                        # print(col)
+                        f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader'][
+                            'text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 2):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{11}" color="{c}">' + str(
+                            col) + '</font></para>'
+                        #         elif (rowidx >= 2):
+                    #             f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                    #             newdata = f'<para align=left><font name="Play-{f}" size="{s}" color="{c}">'+ str(col) + '</font></para>'
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+            t3Style1 = sectionHeaderStyle
+            t = Table(data, self.colwidths2, style=TableStyle(t3Style1))
+            story.append(t)
+
+            print("fuel_page", self.total_fuel_loss, self.total_fuel_gain)
+
+            if (self.total_fuel_loss == 0 and self.total_fuel_gain == 0):
+                fuel_string1 = "No Fuel Gain/Loss"
+                fuel_val1 = 0.0
+            elif (self.total_fuel_loss == 0):
+                fuel_string1 = "Fuel Gain"
+                fuel_val1 = self.GW_Fuel_Gain
+            else:
+                fuel_string1 = "Fuel Loss"
+                fuel_val1 = self.GW_Fuel_Loss
+
+            print("fuel_page1", self.GW_Fuel_Loss, self.GW_Fuel_Gain)
+
+            if (self.GW_Fuel_Loss == 0 and self.GW_Fuel_Gain == 0):
+                fuel_string2 = "No Loss/Gain applied to overall track"
+                fuel_val2 = np.array(0)
+                print("A")
+            elif (self.GW_Fuel_Loss == 0):
+                fuel_string2 = "Fuel Gain applied to overall track"
+                fuel_val2 = self.total_fuel_gain
+                print("B")
+            else:
+                fuel_string2 = "Fuel Loss applied to overall track"
+                fuel_val2 = self.total_fuel_loss
+                print("C")
+            # test
+
+            if math.isnan(self.B168):
+                self.B168 = 0.00
+                # test end
+
+            story.append(space3)
+            rawdata = [['', '', '<b>Good Weather</b>', '', ''],
+                       ['', '', '', '', ''],
+                       ['', 'Actual Usage in Good Weather', '', str(round(self.B167, 2)) + " mts", ''],
+                       ['', 'Average Daily Consumption', '', str(round(self.B168, 2)) + " mts", ''],
+                       ['', 'Min.Allowable Usage', '', str(round(self.Min_Allowable_Usage, 2)) + " mts", ''],
+                       ['', 'Max Allowable Usage', '', str(round(self.Max_Allowable_Usage, 2)) + " mts", ''],
+                       ['', fuel_string1, '', str(fuel_val1.round(2)) + " mts", ''],
+                       ['', fuel_string2, '', str(fuel_val2.round(2)) + " mts", '']]
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):  ## section header
+                        # print(col)
+                        f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader'][
+                            'text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 2):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{11}" color="{c}">' + str(
+                            col) + '</font></para>'
+                        #         elif (rowidx >= 2):
+                    #             f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                    #             newdata = f'<para align=left><font name="Play-{f}" size="{s}" color="{c}">'+ str(col) + '</font></para>'
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+            t3Style1 = sectionHeaderStyle
+            t = Table(data, self.colwidths2, style=TableStyle(t3Style1))
+            story.append(t)
+            # good weather end
+            # emission summary start
+            # total_co2_produced = HSFO*co2_factor_hsfo+IFO*co2_factor_hsfo+GO*co2_factor_mdo
+            total_co2_produced = self.hdfo_total_con * co2_factor_hsfo + self.ifo_total_con * co2_factor_hsfo + self.Total_Bunker_GO_Consumption * co2_factor_mdo
+            #co2 = '<img src="./static/co2(1).jpg" valign="middle" width = "25" height="25"/>'
+            rawdata = [['', '',  '<b>CO2 Emissions Summary</b>', '', ''],
+                       ['', '', '', '', ''],
+                       ['', '', '<b>Overall</b>', '', ''],
+                       ['', '', '', '', ''],
+                       ['', 'Total CO2 produced at sea (MT)', '', str(total_co2_produced.round(2)) + " mts", '']]
+
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):  ## section header
+                        # print(col)
+                        f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader'][
+                            'text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 2):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{11}" color="{c}">' + str(
+                            col) + '</font></para>'
+                        #         elif (rowidx >= 2):
+                    #             f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                    #             newdata = f'<para align=left><font name="Play-{f}" size="{s}" color="{c}">'+ str(col) + '</font></para>'
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+            t3Style1 = sectionHeaderStyle
+            t = Table(data, self.colwidths2, style=TableStyle(t3Style1))
+            story.append(t)
+            story.append(PageBreak())
+
+            # emission summary end
+            # speed summary start
+
+            # speed summary end
+
+            # voyage summary start
+            if (self.constant_speed):
+                story.append(space3)
+                rawdata = [['', '<b>Voyage Summary</b>', ''],
+                           ['', '', ''],
+                           ['', '<b>Itinerary : </b>' + from_port + ' - ' + to_port, ''],
+                           ['', '<b>Voyage Leg Date(UTC) : </b>' + str(self.Dep_Date) + " " + str(
+                               self.departure_time_str) + ' - ' + str(self.Arrival_Date) + " " + str(self.arrival_time_str),
+                            ''],
+                           ['', cp_string, '']]
+
+                data = []
+                for row in rawdata:
+                    newrow = []
+                    rowidx = rawdata.index(row)
+                    for col in row:
+                        colidx = row.index(col)
+                        # print (col)
+                        if (rowidx == 0):  ## section header
+                            # print(col)
+                            f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader'][
+                                'text']
+                            newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                                col) + '</font></para>'
+                        elif (rowidx >= 2):
+                            f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                            newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                                col) + '</font></para>'
+                        else:
+                            newdata = col
+                        newrow.append(Paragraph(newdata))
+                    data.append(newrow)
+                t3Style1 = sectionHeaderStyle
+                t = Table(data, self.colwidths5, style=TableStyle(t3Style1))
+                # story.append(t)
+                # story.append(space2)
+
+                # voyage summary end
+
+                #I_vs = rImage("./png/voyage_details_summary.png")
+                I_vs = rImage(directory_path + "voyage_details_summary.png")
+                image_width, image_height = I_vs.drawWidth, I_vs.drawHeight
+                image_aspect = image_height / float(image_width)
+                print_width = A4[0] * 0.7
+                print_height = (print_width) * image_aspect
+                I_vs.drawWidth = print_width
+                I_vs.drawHeight = print_height
+
+                # Voyage details
+            if (self.prepared_basis == "Optimal Speed"):
+                story.append(space3)
+                rawdata = [['', '<b>Voyage Details</b>', ''],
+                           ['', '', ''],
+                           ['', '<b>Itinerary : </b>' + from_port + ' - ' + to_port, ''],
+                           ['', '<b>Voyage Leg Date(UTC) : </b>' + str(self.Dep_Date) + " " + str(
+                               self.departure_time_str) + ' - ' + str(self.Arrival_Date) + " " + str(self.arrival_time_str),
+                            ''],
+                           ['', cp_string, '']]
+
+                data = []
+                for row in rawdata:
+                    newrow = []
+                    rowidx = rawdata.index(row)
+                    for col in row:
+                        colidx = row.index(col)
+                        # print (col)
+                        if (rowidx == 0):  ## section header
+                            # print(col)
+                            f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader'][
+                                'text']
+                            newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                                col) + '</font></para>'
+                        elif (rowidx >= 2):
+                            f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                            newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                                col) + '</font></para>'
+                        else:
+                            newdata = col
+                        newrow.append(Paragraph(newdata))
+                    data.append(newrow)
+                t3Style1 = sectionHeaderStyle
+
+                t = Table(data, self.colwidths5, style=TableStyle(t3Style1))
+                story.append(t)
+                story.append(space2)
+
+                print("ceiling_voyage_detail", math.ceil(self.no_of_page_voyage))
+
+                for i in range(math.ceil(self.no_of_page_voyage)):
+                    print(i)
+                    #I_vd1 = rImage("./png/voyage_details_table" + str(i + 1) + ".png")
+                    I_vd1 = rImage(directory_path + "voyage_details_table" + str(i + 1) + ".png")
+                    image_width, image_height = I_vd1.drawWidth, I_vd1.drawHeight
+                    print("Original Width1, Height:")
+                    print((image_width, image_height))
+                    image_aspect = image_height / float(image_width)
+
+                    # Determine the dimensions of the image in the overview
+                    print_width = A4[0] * 0.9
+                    print_height = print_width * image_aspect
+                    print("Image Aspect:" + str(image_aspect))
+                    print("Print Width, Height:")
+                    print((print_width, print_height))
+                    I_vd1.drawWidth = print_width
+                    I_vd1.drawHeight = print_height
+                    story.append(I_vd1)
+                    story.append(space2)
+                    if math.ceil(self.no_of_page_voyage) == i:
+                        story.append(PageBreak())
+
+                    # voyage detail end
+
+                    I_legend = rImage("./static/Legend(1).png")
+                    image_width, image_height = I_legend.drawWidth, I_legend.drawHeight
+                    image_aspect = image_height / float(image_width)
+                    print_width = A4[0] * 0.50
+                    print_height = print_width * image_aspect
+
+                    I_legend.drawWidth = print_width
+                    I_legend.drawHeight = print_height
+                    story.append(I_legend)
+
+                    story.append(space2)
+                    story.append(PageBreak())
+
+            # ---Weather page
+
+            rawdata = [['', '<b>Detailed Weather Analysis</b>', ''],
+                       ['', '', ''],
+                       ['', '<b>Itinerary : </b>' + from_port + ' - ' + to_port, ''],
+                       ['', '<b>Voyage Leg Date(UTC) : </b>' + str(self.Dep_Date) + " " + str(
+                           self.departure_time_str) + ' - ' + str(self.Arrival_Date) + " " + str(self.arrival_time_str),
+                        ''],
+                       ['', cp_string, '']]
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):  ## section header
+                        # print(col)
+                        f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader'][
+                            'text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 2):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                        #         elif (rowidx >= 2):
+                    #             f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                    #             newdata = f'<para align=left><font name="Play-{f}" size="{s}" color="{c}">'+ str(col) + '</font></para>'
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+            t3Style1 = sectionHeaderStyle
+            t = Table(data, self.colwidths5, style=TableStyle(t3Style1))
+            story.append(t)
+
+            print("ceiling_weather", math.ceil(self.no_of_page_weather))
+
+            for i in range(math.ceil(self.no_of_page_weather)):
+                # story.append(space2)
+
+                if i == 0:
+                    #I_dw = rImage("./png/weather_detail" + str(i + 1) + ".png")
+                    I_dw = rImage(directory_path + "weather_detail" + str(i + 1) + ".png")
+                    image_width, image_height = I_dw.drawWidth, I_dw.drawHeight
+                    print("Original Width2, Height:")
+                    print((image_width, image_height))
+                    image_aspect = image_height / float(image_width)
+
+                    # Determine the dimensions of the image in the overview
+                    print_width = A4[0] * 0.89
+                    print_height = print_width * image_aspect
+                    print("Image Aspect:" + str(image_aspect))
+                    print("Print Width2, Height:")
+                    print((print_width, print_height))
+                    I_dw.drawWidth = print_width
+                    I_dw.drawHeight = print_height
+                    story.append(I_dw)
+                    story.append(PageBreak())
+                else:
+                    story.append(space2)
+                    story.append(space3)
+                    story.append(space2)
+
+                    #I_dw = rImage("./png/weather_detail" + str(i + 1) + ".png")
+                    I_dw = rImage(directory_path + "weather_detail" + str(i + 1) + ".png")
+                    image_width, image_height = I_dw.drawWidth, I_dw.drawHeight
+                    print("Original Width2, Height:")
+                    print((image_width, image_height))
+                    image_aspect = image_height / float(image_width)
+
+                    # Determine the dimensions of the image in the overview
+                    print_width = A4[0] * 0.89
+                    print_height = print_width * image_aspect
+                    print("Image Aspect:" + str(image_aspect))
+                    print("Print Width2, Height:")
+                    print((print_width, print_height))
+                    I_dw.drawWidth = print_width
+                    I_dw.drawHeight = print_height
+                    story.append(I_dw)
+                    story.append(PageBreak())
+
+            #             if i!=0:
+            #                 story.append(PageBreak())
+
+            story.append(space3)
+            rawdata = [['', '<b>Good Weather Summary</b>', ''],
+                       ['', '', ''],
+                       ['', '<b>Itinerary : </b>' + from_port + ' - ' + to_port, ''],
+                       ['', '<b>Voyage Leg Date(UTC) : </b>' + str(self.Dep_Date) + " " + str(
+                           self.departure_time_str) + ' - ' + str(self.Arrival_Date) + " " + str(self.arrival_time_str),
+                        ''],
+                       # ['','','<b>Voyage Leg Date(UTC) : </b>'+  str(self.departure_time_str) +' - '+ str(self.arrival_time_str),'',''],
+                       ['', cp_string, '']]
+            data = []
+            for row in rawdata:
+                # print(row)
+                newrow = []
+                rowidx = rawdata.index(row)
+                # print(rowidx)
+                for col in row:
+                    colidx = row.index(col)
+                    # print (col)
+                    if (rowidx == 0):  ## section header
+                        # print(col)
+                        f, s, c = font['sectionheader']['text'], size['sectionheader']['text'], colour['sectionheader'][
+                            'text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                    elif (rowidx >= 2):
+                        f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                        newdata = f'<para align=center><font name="Play-{f}" size="{s}" color="{c}">' + str(
+                            col) + '</font></para>'
+                        #         elif (rowidx >= 2):
+                    #             f, s, c = font['subtitle']['text'], size['subtitle']['text'], colour['subtitle']['text']
+                    #             newdata = f'<para align=left><font name="Play-{f}" size="{s}" color="{c}">'+ str(col) + '</font></para>'
+                    else:
+                        newdata = col
+                    newrow.append(Paragraph(newdata))
+                data.append(newrow)
+            t3Style1 = sectionHeaderStyle
+            t = Table(data, self.colwidths5, style=TableStyle(t3Style1))
+            story.append(t)
+            # story.append(space3)
+            print("test1")
+            #I_gw = rImage("./png/weather_detail_summary.png")
+            I_gw = rImage(directory_path + "weather_detail_summary.png")
+
+            image_width, image_height = I_gw.drawWidth, I_gw.drawHeight
+            image_aspect = image_height / float(image_width)
+            print_width = A4[0] * 0.89
+            print_height = print_width * image_aspect
+            I_gw.drawWidth = print_width
+            I_gw.drawHeight = print_height
+            story.append(I_gw)
+            story.append(PageBreak())
+            print("test2")
+
+            story.append(space3)
+
+            story.append(Paragraph(
+                f'<para align=center><font name="Play-Bold" size="17" color="{c}"><b>Message Traffic</b></font></para>'))
+            story.append(space3)
+            #         for ind in range(mt_count):
+            #         if(ind!=0):
+            #           story.append(space3)
+            #           #story.append(space3)
+            #           #story.append(space3)
+            #I_mt = rImage("./png/message_traffic_summary.png")
+            I_mt = rImage(directory_path + "message_traffic_summary.png")
+            # I_mt.drawHeight = 10*inch*I_mt.drawHeight / I_mt.drawWidth
+            # I_mt.drawWidth = 8*inch*0.9
+            image_width, image_height = I_mt.drawWidth, I_mt.drawHeight
+            # print("Original Width, Height:")
+            # print((image_width, image_height))
+            image_aspect = image_height / float(image_width)
+
+            # Determine the dimensions of the image in the overview
+            print_width = A4[0] * 0.89
+            print_height = print_width * image_aspect
+            # print("Image Aspect:"+str(image_aspect))
+            # print("Print Width, Height:")
+            # print((print_width,print_height))
+            # if(ind!=0):
+            I_mt.drawWidth = print_width
+            I_mt.drawHeight = print_height
+            # else:
+            I_mt.drawWidth = print_width
+            I_mt.drawHeight = print_height
+            story.append(I_mt)
+            story.append(PageBreak())
+
+            print("test3")
+
+            def addPageNumber(canvas, doc):
+                """
+                Add the page number
+                """
+                #     canvas.setStrokeColorRGB(0.7,0.5,0.3)
+                #     canvas.line(7.3*inch, 11.0*inch, 7.7*inch, 11.4*inch)
+                #     canvas.setFillColorRGB(0,145,23)
+                #     canvas.ellipse(7.3*inch, 11.0*inch, 7.7*inch, 11.4*inch, stroke=1, fill=1)
+                canvas.saveState()
+                canvas.setFillColorRGB(0, 0, 0)
+                canvas.setStrokeColorRGB(0, 0, 0)
+                canvas.setFont("Play-Regular", 6)
+                # logo = "ZN logo.jpg"
+                # w, h = logo.wrap(doc.width, doc.topMargin)
+                im = PIL.Image.open("./static/ZN Logo (2).jpg")
+                canvas.drawInlineImage(im, 470, 780, width=100, height=50)
+                im2 = PIL.Image.open("./static/mgtg (1).jpg")
+                canvas.drawInlineImage(im2, 240, 25, width=100, height=10)
+
+                current_page = canvas.getPageNumber()  # -- adding page numbers
+                page_num_text = f"Page {current_page} of {total_no_of_pages}"
+
+                canvas.drawRightString(7.6 * inch, 0.4 * inch, page_num_text)
+
+                # logo.drawOn(canvas, doc.leftMargin, doc.height + doc.topMargin - h)
+                # canvas.drawImage(logo, 500,330)
+                # canvas.line(0.5*inch,0.5*inch,7.8*inch,0.5*inch)
+                # page_num = "Page %s" % canvas.getPageNumber()
+                # page_num = "Page %s" % canvas.getNumPages()
+                # canvas.drawRightString(7.5*inch, 0.4*inch, page_num)
+                # current_time = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+                # generated = f'Alpha Ori Technologies {current_time}'
+                # canvas.drawRightString(2.2*inch, 0.4*inch, generated)
+                canvas.restoreState()
+                print("test777")
+
+            story.append(space3)
+            story.append(Paragraph(
+                f'<para align=center><font name="Play-Bold" size="17" color="{c}"><b>Fuel Graph</b></font></para>'))
+            story.append(space)
+            story.append(Paragraph(
+                f'<para align=center><font name="Play-{f}" size="14" color="{c}"><b>Comparison between Actual vs Allowed IFO Cons.</b></font></para>'))
+            story.append(space)
+            #I_bc1 = rImage("./png/bar_chart1.png")
+            I_bc1 = rImage(directory_path + "bar_chart1.png")
+            I_bc1.drawHeight = 5 * inch * I_bc1.drawHeight / I_bc1.drawWidth
+            I_bc1.drawWidth = 6 * inch * 0.9
+            story.append(I_bc1)
+
+            story.append(space3)
+            story.append(Paragraph(
+                f'<para align=center><font name="Play-Bold" size="17" color="{c}"><b>Steaming Graph</b></font></para>'))
+            story.append(space)
+            story.append(Paragraph(
+                f'<para align=center><font name="Play-{f}" size="14" color="{c}"><b>Comparison between Actual vs Allowed Steaming</b></font></para>'))
+            story.append(space)
+            #I_bc2 = rImage("./png/bar_chart2.png")
+            I_bc2 = rImage(directory_path + "bar_chart2.png")
+            I_bc2.drawHeight = 5 * inch * I_bc2.drawHeight / I_bc2.drawWidth
+            I_bc2.drawWidth = 6 * inch * 0.9
+            story.append(I_bc2)
+            story.append(PageBreak())
+            print("test4")
+
+            # Page11
+            story.append(space3)
+            story.append(Paragraph(
+                f'<para align=center><font name="Play-{f}" size="17" color="{c}"><b>Annex A - Speed Calculation Detail</b></font></para>'))
+            story.append(space3)
+            story.append(space3)
+
+            I_p1f = rImage("./static/page_1_new_formula.png")
+            image_width, image_height = I_p1f.drawWidth, I_p1f.drawHeight
+            image_aspect = image_height / float(image_width)
+            print_width = A4[0] * 0.89
+            print_height = print_width * image_aspect
+            I_p1f.drawWidth = print_width
+            I_p1f.drawHeight = print_height
+            story.append(I_p1f)
+            story.append(PageBreak())
+            print("test5")
+
+            # page13
+
+            story.append(space3)
+            story.append(Paragraph(
+                f'<para align=center><font name="Play-{f}" size="17" color="{c}"><b>Annex B - Fuel Consumption Calculation Detail</b></font></para>'))
+            story.append(space)
+            # story.append(space3)
+            I_p2f = rImage("./static/page_2_new_formula.png")
+            image_width, image_height = I_p2f.drawWidth, I_p2f.drawHeight
+            image_aspect = image_height / float(image_width)
+            print_width = A4[0] * 0.89
+            print_height = print_width * image_aspect
+            I_p2f.drawWidth = print_width
+            I_p2f.drawHeight = print_height
+            # I_p2f.drawHeight = 6*inch*I_p2f.drawHeight / I_p2f.drawWidth
+            # I_p2f.drawWidth = 8*inch*0.9
+            story.append(I_p2f)
+            story.append(space)
+            story.append(Paragraph(
+                f'<para align=center><font name="Play-{f}" size="17" color="{c}"><b>Annex C - CO2 Emission Calculation Detail</b></font></para>'))
+            story.append(space)
+            story.append(Paragraph(
+                f'<para align=center><font name="Play-{f}" size="11" color="{c}">Total CO2 produced at sea (MT) =	Σ(bunker consumed x CO2 factor for particular grade)</font></para>'))
+            story.append(space)
+            story.append(Paragraph(
+                f'<para align=center><font name="Play-{f}" size="9" color="{c}"><i>*all CO2 factors are considered as mentioned in IMO GHG Study 2020 (pg.74; Table 21)</i></font></para>'))
+            story.append(PageBreak())
+
+            # page12
+            story.append(space3)
+            story.append(Paragraph(
+                f'<para align=center><font name="Play-{f}" size="17" color="{c}"><b>Weather DataSources</b></font></para>'))
+            story.append(space3)
+            story.append(Paragraph(
+                f'<font name="Play-{f}" size="11" color="{c}">Our weather forecast is based on data from several sources including NOAA server along with<br /> two other agencies.The weather projection model consist of 05 days accurate weather forecast along<br /> with 09 days extended forecast. For subsequent days,information from historical weather database is used.</font>',
+                orden))
+            story.append(space2)
+            story.append(
+                Paragraph(f'<font name="Play-Bold" size="12" color="{c}"><b>WAVEWATCH III for Wind/Waves/Swell</b></font>'))
+            story.append(space2)
+            story.append(Paragraph(
+                f'<font name="Play-{f}" size="11" color="{c}"><b>WAVEWATCH III is a third generation multi-grid wave model at NOAA/NCEP in the spirit of WAM model.</b></font>'))
+            story.append(space2)
+            story.append(
+                Paragraph(f'<font name="Play-{f}" size="11" color="{c}"><b>Update Interval : 6 Hours</b></font>', orden))
+            story.append(
+                Paragraph(f'<font name="Play-{f}" size="11" color="{c}"><b>Average Resolution Time : 3 Hours</b></font>',
+                          orden))
+            story.append(
+                Paragraph(f'<font name="Play-{f}" size="11" color="{c}"><b>Time Period : 5 Days</b></font>', orden))
+            story.append(Paragraph(
+                f'<font name="Play-{f}" size="11" color="{c}"><b>Provider : NOAA (National Oceanic & Atmospheric Administration</b></font>',
+                orden))
+            story.append(space2)
+            story.append(Paragraph(
+                f'<font name="Play-Bold" size="12" color="{c}"><b>GEFS (Global Ensemble Forecast System) for Wind/Waves/Swell</b></font>'))
+            story.append(space2)
+            story.append(Paragraph(
+                f'<font name="Play-{f}" size="11" color="{c}"><b>The Global Ensemble Forecast System (GEFS) is a weather forecast model made up of 21 separate forecast or ensemble members.</b></font>'))
+            story.append(space2)
+            story.append(
+                Paragraph(f'<font name="Play-{f}" size="11" color="{c}"><b>Update Interval : 6 Hours</b></font>', orden))
+            story.append(
+                Paragraph(f'<font name="Play-{f}" size="11" color="{c}"><b>Average Resolution Time : 3 Hours</b></font>',
+                          orden))
+            story.append(
+                Paragraph(f'<font name="Play-{f}" size="11" color="{c}"><b>Time Period : 16 Days</b></font>', orden))
+            story.append(Paragraph(
+                f'<font name="Play-{f}" size="11" color="{c}"><b>Provider : NOAA (National Oceanic & Atmospheric Administration</b></font>',
+                orden))
+            story.append(space2)
+            story.append(Paragraph(
+                f'<font name="Play-Bold" size="12" color="{c}"><b>Copernicus Marine Environment Monitoring Service- for Sea Currents</b></font>'))
+            story.append(space2)
+            story.append(Paragraph(
+                f'<font name="Play-{f}" size="11" color="{c}">The Copernicus Marine Environment Monitoring Service is part of the Copernicus Pro- gramme, which is an EU Programme managed by the European Commission (EC) and implemented in partnership with the Member States, the European Space Agency (ESA), the European Organisation for the Exploitation of Meteorological Satellites (EUMETSAT), the European Centre for medium-range Weather Forecasts (ECMWF), EU Agencies and Mercator Ocean. The Programme is aimed at developing a set of European information services based on satellite Earth Observation and in-situ (non-space) data.</font>',
+                orden))
+            story.append(space2)
+            story.append(Paragraph(
+                f'<font name="Play-{f}" size="11" color="{c}"><b>Spatial Resolution : 0.08 degree (Lat) x 0.08 degree (Lon)</b></font>',
+                orden))
+            story.append(
+                Paragraph(f'<font name="Play-{f}" size="11" color="{c}"><b>Temporal Resolution : Hourly mean</b></font>',
+                          orden))
+            story.append(
+                Paragraph(f'<font name="Play-{f}" size="11" color="{c}"><b>Time Period : 7 Days</b></font>', orden))
+            story.append(
+                Paragraph(f'<font name="Play-{f}" size="11" color="{c}"><strong>Provider : Copernicus</strong></font>',
+                          orden))
+            story.append(space3)
+            print("test6")
+            doc.build(story, onLaterPages=addPageNumber)
+
+
 
     my_obj = Pdf_process(filename,
                          green_processed_file,
@@ -6022,6 +7485,19 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
     my_obj.colWidth4()
     my_obj.colWidth5()
     my_obj.generate_pdf(from_port, to_port, bad_weather_period_definition_as_per_CP_in_hrs,
+                        report_type,
+                        # current_excluded,
+                        prepared_basis,
+                        waranted_weather_yes_no,
+                        extrapolation_Allowed,
+                        current_tolerance,
+                        tolerance,
+                        mistolerance,
+                        About_Cons_MaxTolerence,
+                        bf_limit_dss
+                        )
+    my_obj.counting_pages()
+    my_obj.generate_pdf_x(from_port, to_port, bad_weather_period_definition_as_per_CP_in_hrs,
                         report_type,
                         # current_excluded,
                         prepared_basis,
