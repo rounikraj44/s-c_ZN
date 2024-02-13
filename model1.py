@@ -3401,7 +3401,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                     #if x[-2]!='':
                         print("If worked")
                         #return ['font-weight: bold'] * len(x)
-                        return ['font-weight: 500']*len(x)
+                        return ['font-weight: bold']*len(x)
                     else:
                         print("did not work")
                         return [''] * len(x)
@@ -3414,9 +3414,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                     else:
                         return ['background-color: white'] * len(x)
 
-                df = pd.DataFrame(new_weather_detail_table.values, columns=index2).style. \
-                    format(precision=2, na_rep='-').apply(add_row_color,axis=1). \
-                    set_table_styles(style1).apply(fonts_bold, axis=1).hide().hide(subset=[("Report Data by Ship","GWP")],axis=1)
+                df = pd.DataFrame(new_weather_detail_table.values, columns=index2).style.format(precision=2, na_rep='-').set_table_styles(style1).apply(add_row_color,axis=1).apply(fonts_bold, axis=1).hide(subset=[("Report Data by Ship","GWP")],axis=1).hide() #(subset=[("Report Data by Ship","GWP")],axis=1) \
 
                 #dfi.export(df, "./png/weather_detail" + str(i) + ".png")
                 dfi.export(df, directory_path + "weather_detail" + str(i) + ".png")

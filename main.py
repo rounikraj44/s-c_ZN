@@ -1,7 +1,7 @@
 from flask import Flask, session, abort, redirect, request,make_response
 import json
 from threading import Thread
-import model
+import model1
 from functools import wraps
 import os
 app = Flask(__name__)
@@ -45,7 +45,7 @@ def generate_pdf():
         print(e)
         return "Error Getting Parameters from the Request"
 
-    thread = Thread(target=model.trigger_pdf,args=[filename_inp,from_port_inp,to_port_inp,prepared_basis_inp,voyage_phase_inp,fuel_type_used_inp,waranted_weather_yes_no_inp,bf_limit_inp,windwave_limit_inp,swell_height_inp,swh_limit_inp,gwx_type_inp,not_sure_L78_inp,gwx_hours_inp,performance_calculation_inp,current_tolerance_inp,tolerance_inp,mistolerance_inp,About_Cons_MaxTolerence_inp,extrapolation_Allowed_inp,report_type_inp])
+    thread = Thread(target=model1.trigger_pdf,args=[filename_inp,from_port_inp,to_port_inp,prepared_basis_inp,voyage_phase_inp,fuel_type_used_inp,waranted_weather_yes_no_inp,bf_limit_inp,windwave_limit_inp,swell_height_inp,swh_limit_inp,gwx_type_inp,not_sure_L78_inp,gwx_hours_inp,performance_calculation_inp,current_tolerance_inp,tolerance_inp,mistolerance_inp,About_Cons_MaxTolerence_inp,extrapolation_Allowed_inp,report_type_inp])
     thread.start()
     print("Process Triggered...")
     print("Responding: Process Triggered...")
