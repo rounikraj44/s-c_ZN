@@ -5410,12 +5410,12 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
             story.append(space3)
             rawdata = [['', '', '<b>Good Weather</b>', '', ''],
                        ['', '', '', '', ''],
-                       ['', 'Actual Usage in Good Weather', '', str(self.B167) + " mts", ''],
-                       ['', 'Average Daily Consumption', '', str(self.B168) + " mts", ''],
-                       ['', 'Min.Allowable Usage', '', str(self.Min_Allowable_Usage) + " mts", ''],
-                       ['', 'Max Allowable Usage', '', str(self.Max_Allowable_Usage) + " mts", ''],
-                       ['', fuel_string1, '', str(fuel_val1) + " mts", ''],
-                       ['', fuel_string2, '', str(fuel_val2) + " mts", '']]
+                       ['', 'Actual Usage in Good Weather', '', str(self.B167.round(2)) + " mts", ''],
+                       ['', 'Average Daily Consumption', '', str(round(self.B168,2)) + " mts", ''],
+                       ['', 'Min.Allowable Usage', '', str(round(self.Min_Allowable_Usage,2)) + " mts", ''],
+                       ['', 'Max Allowable Usage', '', str(round(self.Max_Allowable_Usage,2)) + " mts", ''],
+                       ['', fuel_string1, '', str(round(fuel_val1,2)) + " mts", ''],
+                       ['', fuel_string2, '', str(fuel_val2.round(2)) + " mts", '']]
             data = []
             for row in rawdata:
                 # print(row)
