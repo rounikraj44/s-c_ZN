@@ -5432,12 +5432,12 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
             story.append(space3)
             rawdata = [['', '', '<b>Good Weather</b>', '', ''],
                        ['', '', '', '', ''],
-                       ['', 'Actual Usage in Good Weather', '', str(self.B167) + " mts", ''],
-                       ['', 'Average Daily Consumption', '', str(self.B168) + " mts", ''],
-                       ['', 'Min.Allowable Usage', '', str(self.Min_Allowable_Usage) + " mts", ''],
-                       ['', 'Max Allowable Usage', '', str(self.Max_Allowable_Usage) + " mts", ''],
-                       ['', fuel_string1, '', str(fuel_val1) + " mts", ''],
-                       ['', fuel_string2, '', str(fuel_val2) + " mts", '']]
+                       ['', 'Actual Usage in Good Weather', '', str(round(self.B167, 2)) + " mts", ''],
+                       ['', 'Average Daily Consumption', '', str(round(self.B168, 2)) + " mts", ''],
+                       ['', 'Min.Allowable Usage', '', str(round(self.Min_Allowable_Usage, 2)) + " mts", ''],
+                       ['', 'Max Allowable Usage', '', str(round(self.Max_Allowable_Usage, 2)) + " mts", ''],
+                       ['', fuel_string1, '', str(fuel_val1.round(2)) + " mts", ''],
+                       ['', fuel_string2, '', str(fuel_val2.round(2)) + " mts", '']]
             data = []
             for row in rawdata:
                 # print(row)
@@ -5887,7 +5887,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
             story.append(space3)
             story.append(space3)
 
-            I_p1f = rImage("./static/page_1_formula (1).png")
+            I_p1f = rImage("./static/page_1_new_formula.png")
             image_width, image_height = I_p1f.drawWidth, I_p1f.drawHeight
             image_aspect = image_height / float(image_width)
             print_width = A4[0] * 0.89
@@ -5905,7 +5905,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                 f'<para align=center><font name="Play-{f}" size="17" color="{c}"><b>Annex B - Fuel Consumption Calculation Detail</b></font></para>'))
             story.append(space)
             # story.append(space3)
-            I_p2f = rImage("./static/page_2_formula (1).png")
+            I_p2f = rImage("./static/page_2_new_formula.png")
             image_width, image_height = I_p2f.drawWidth, I_p2f.drawHeight
             image_aspect = image_height / float(image_width)
             print_width = A4[0] * 0.89
