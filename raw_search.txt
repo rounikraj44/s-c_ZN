@@ -1,0 +1,2 @@
+rawdata = [['', '', '<b>Good Weather</b>', '', ''],
+report_analysis_summary_v

@@ -2868,7 +2868,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
 
             # green_processed_file_temp_average_performance_speed = green_processed_file_temp_perform_distance/green_processed_file_temp_steaming_time
 
-            if adverse_current == "excluded":
+            if self.adverse_current == "excluded":
                 green_processed_file_temp_perform_distance = green_processed_file_temp['Observed distance (NM)'].sum()
                 green_processed_file_temp_average_performance_speed = green_processed_file_temp_average_speed
             #             if (math.isnan(green_processed_file_temp_average_speed)):
@@ -2883,20 +2883,36 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                 green_processed_file_temp_perform_distance = green_processed_file_temp['Performance Distance'].sum()
                 green_processed_file_temp_average_performance_speed = green_processed_file_temp_perform_distance / green_processed_file_temp_steaming_time
 
-            data = np.array([[from_port + ' to ' + to_port,
-                              green_processed_file.loc[0, 'Date'],
-                              green_processed_file.loc[len(green_processed_file) - 1, 'Date'],
-                              str(green_processed_file_temp_distance.round(2)),
-                              str(round(green_processed_file_temp_steaming_time, 2)),
-                              str(round(green_processed_file_temp_average_speed, 2)),
-                              str(green_processed_file_temp_Actual_Total_Consumption_FO),
-                              str(green_processed_file_temp_perform_distance.round(2)),
-                              str(round(green_processed_file_temp_average_performance_speed, 2)),
-                              # dont know what this is.. domething was here else
-                              str(overal_weather_distance.round(2)),
-                              str(round(overal_weather_steaming_time, 2)),
-                              str(overal_weather_Average_speed.round(2)),
-                              str(overal_weather_Actual_Total_Consumption_FO.round(2))]])
+            if self.adverse_current == "excluded":
+                data = np.array([[from_port + ' to ' + to_port,
+                                  green_processed_file.loc[0, 'Date'],
+                                  green_processed_file.loc[len(green_processed_file) - 1, 'Date'],
+                                  str(green_processed_file_temp_distance.round(2)),
+                                  str(round(green_processed_file_temp_steaming_time, 2)),
+                                  str(round(green_processed_file_temp_average_speed, 2)),
+                                  str(green_processed_file_temp_Actual_Total_Consumption_FO),
+                                  str(green_processed_file_temp_perform_distance.round(2)),
+                                  str(round(green_processed_file_temp_average_speed, 2)),
+                                  # dont know what this is.. domething was here else
+                                  str(overal_weather_distance.round(2)),
+                                  str(round(overal_weather_steaming_time, 2)),
+                                  str(overal_weather_Average_speed.round(2)),
+                                  str(overal_weather_Actual_Total_Consumption_FO.round(2))]])
+            elif self.adverse_current == "not_excluded":
+                data = np.array([[from_port + ' to ' + to_port,
+                                  green_processed_file.loc[0, 'Date'],
+                                  green_processed_file.loc[len(green_processed_file) - 1, 'Date'],
+                                  str(green_processed_file_temp_distance.round(2)),
+                                  str(round(green_processed_file_temp_steaming_time, 2)),
+                                  str(round(green_processed_file_temp_average_speed, 2)),
+                                  str(green_processed_file_temp_Actual_Total_Consumption_FO),
+                                  str(green_processed_file_temp_perform_distance.round(2)),
+                                  str(round(green_processed_file_temp_average_performance_speed, 2)),
+                                  # dont know what this is.. domething was here else
+                                  str(overal_weather_distance.round(2)),
+                                  str(round(overal_weather_steaming_time, 2)),
+                                  str(overal_weather_Average_speed.round(2)),
+                                  str(overal_weather_Actual_Total_Consumption_FO.round(2))]])
 
             df = pd.DataFrame(data=data, columns=column_index)
 
@@ -6703,7 +6719,10 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
             new_gw_distance = float(round(self.Good_Weather_Distance, 2))
             new_performed_speed = float(round(self.B132, 2))
             # display("this is the new data", new_gw_distance, new_performed_speed, type(new_gw_distance), type(new_performed_speed))
-            adjusted_time_in_good_weather = new_gw_distance / new_performed_speed
+            if new_performed_speed != 0:
+                adjusted_time_in_good_weather = new_gw_distance / new_performed_speed
+            else:
+                adjusted_time_in_good_weather = new_gw_distance
 
             # if(adverse_curr_excluded=="Excluded" or adverse_curr_excluded=="Yes"):
             if (self.gwx_type == "x"):
@@ -6712,8 +6731,8 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                            ['', 'Total Distance Sailed', '', str(round(self.Good_Weather_Distance, 2)) + " NM", ''],
                            ['', 'Time at Sea', '', str(round(self.Good_Weather_Time, 2)) + " hrs", ''],
                            ['', 'Average Speed', '', str(round(self.Average_Speed_In_Good_Weather, 2)) + " kts", ''],
-                           ['', 'Current Factor', '', str(round(self.current_factor, 2)) + " kts", ''],
-                           ['', 'Performance Speed', '', str(round(self.B132, 2)) + " kts", ''],
+                           ['', 'Current Factor', '', 'N/A', ''],
+                           ['', 'Performance Speed', '', str(round(self.Average_Speed_In_Good_Weather, 2)) + " kts", ''],
                            ['', 'Adjusted Time in Good weather', '', str(round(adjusted_time_in_good_weather, 2))+" hrs", ''],
                            ['', 'C/P Min.Allowable Time', '', str(self.Min_Total_Allowed_Time_in_GW.round(2)) + " hrs", ''],
                            ['', 'C/P Max.Allowable Time', '', str(self.Max_Total_Allowed_Time_in_GW.round(2)) + " hrs", ''],
@@ -6728,7 +6747,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                            ['', 'Total Distance Sailed', '', str(round(self.Good_Weather_Distance, 2)) + " NM", ''],
                            ['', 'Time at Sea', '', str(round(self.Good_Weather_Time, 2)) + " hrs", ''],
                            ['', 'Average Speed', '', str(round(self.Average_Speed_In_Good_Weather, 2)) + " kts", ''],
-                           ['', 'Current Factor', '', 'N/A', ''],
+                           ['', 'Current Factor', '', str(round(self.current_factor, 2)) + " kts", ''],
                            ['', 'Performance Speed', '', str(round(self.B132, 2)) + " kts", ''],
                            ['', 'Adjusted Time in Good weather','', str(round(adjusted_time_in_good_weather, 2))+" hrs",''],
                            ['', 'C/P Min.Allowable Time', '', str(self.Min_Total_Allowed_Time_in_GW.round(2)) + " hrs", ''],
