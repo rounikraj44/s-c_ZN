@@ -136,6 +136,12 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
 
             # print("first process",self.df)
             # print(self.df.info())
+            columns_to_select_indices = [-1]
+            selected_columns_df = self.df.iloc[:, columns_to_select_indices]
+            needed_index_only = [("Remarks")]
+            global remarked_dataframe
+            remarked_dataframe = pd.DataFrame(selected_columns_df.values, columns=needed_index_only)
+            # display(remarked_dataframe)
 
             print('Before to_datetime')
             # print(self.df["Date"],self.df["Ship's Time (UTC)"])
@@ -3532,6 +3538,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
         def beautifying_weather_summary(self, weather_summary_table, from_port, to_port):
 
             # print("beautifying_weather_summary",weather_summary_table)
+            weather_summary_table = weather_summary_table.join(remarked_dataframe)
 
             weather_summary_table['Latitude'] = weather_summary_table['Latitude'].astype(float)
             weather_summary_table['Longitude'] = weather_summary_table['Longitude'].astype(float)
@@ -3565,6 +3572,10 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
             # weather_summary_table['Date']=weather_summary_table['Date'].apply(lambda x:x.strftime("%d/%m/%Y"))
 
             # print("beautifying_weather_summary2",weather_summary_table)
+            gws_column_indices = weather_summary_table.columns.tolist()
+            gws_column_indices[-2], gws_column_indices[-1] = gws_column_indices[-1], gws_column_indices[-2]
+            weather_summary_table = weather_summary_table[gws_column_indices]
+            weather_summary_table["Remarks"].replace(0, 'YES', inplace=True)
 
             tuple_list4 = [("Date", ""),
                            ("Lat", ""),
@@ -3584,6 +3595,7 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                            ("Bunker Cons. (MT)", "MGO"),
                            ("Bunker Cons. (MT)", "MDO"),
                            ("Allowed Cons. MT", ""),
+                           ("Exclusion",""),
                            ("Good Weather", "")]
 
             style1 = [{'selector': 'th',
@@ -3629,9 +3641,14 @@ def trigger_pdf(filename_inp, from_port_inp,to_port_inp,prepared_basis_inp,\
                 else:
                     return ['background-color: white'] * len(x)
 
+            def beautify_exclusion(x):
+                if x[("Exclusion", "")] != "":
+                    return ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+                            'font-weight: bold; color: red', '']
+
             df10 = pd.DataFrame(weather_summary_table.values, columns=index4).style. \
                 format(precision=2, na_rep='-'). \
-                apply(add_row_color, axis=1). \
+                apply(add_row_color, axis=1).apply(beautify_exclusion, axis=1). \
                 set_table_styles(style1).hide()
 
             print("--" * 20)
